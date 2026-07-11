@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Extend Library Hours on Weekends",
+    "description": "Vote to extend library operating hours to midnight on Saturdays and Sundays during the academic semester. Currently the library closes at 6 PM on weekends, which many students find too early for exam preparation and group study sessions.",
+    "author": "Student Council",
+    "category": "campus-life",
+    "createdAt": "2026-07-01T00:00:00Z",
+    "endsAt": "2026-08-01T00:00:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Add Free Shuttle Service Between Campuses",
+    "description": "Propose a free shuttle bus service running every 30 minutes between the North and South campuses. This would help students who have classes on both campuses and currently spend significant time walking or paying for transit.",
+    "author": "Transit Committee",
+    "category": "infrastructure",
+    "createdAt": "2026-07-05T00:00:00Z",
+    "endsAt": "2026-08-05T00:00:00Z"
+  },
+  {
+    "id": 3,
+    "title": "Mental Health Day Policy",
+    "description": "Implement two official mental health days per semester where students can miss classes without academic penalty. This would provide a structured way for students to prioritize their wellbeing without fear of falling behind.",
+    "author": "Wellness Board",
+    "category": "academics",
+    "createdAt": "2026-07-08T00:00:00Z",
+    "endsAt": "2026-08-08T00:00:00Z"
+  },
+  {
+    "id": 4,
+    "title": "Increase Funding for Student Organizations",
+    "description": "Allocate an additional $50,000 to the student organization fund. This would allow more clubs to host events, bring in guest speakers, and organize campus-wide activities throughout the year.",
+    "author": "Budget Committee",
+    "category": "finance",
+    "createdAt": "2026-07-10T00:00:00Z",
+    "endsAt": "2026-08-10T00:00:00Z"
+  },
+  {
+    "id": 5,
+    "title": "Campus Sustainability Initiative",
+    "description": "Launch a campus-wide sustainability program that includes solar panel installations on academic buildings, composting stations in dining halls, and a zero-waste goal by 2030.",
+    "author": "Green Campus Alliance",
+    "category": "sustainability",
+    "createdAt": "2026-07-11T00:00:00Z",
+    "endsAt": "2026-08-11T00:00:00Z"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "campus-voice",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Decentralized student governance platform on Solana",
+  "scripts": {
+    "anchor:build": "anchor build",
+    "anchor:deploy": "anchor deploy",
+    "anchor:test": "anchor test",
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install:all": "cd frontend && npm install"
+  }
+}
