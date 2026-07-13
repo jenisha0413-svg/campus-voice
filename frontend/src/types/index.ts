@@ -17,7 +17,7 @@ export interface VoteRecord {
 }
 
 export interface VoteStatus {
-  voted: boolean;
+  voted?: boolean;
   vote?: boolean;
   votedAt?: number;
   txSignature?: string;

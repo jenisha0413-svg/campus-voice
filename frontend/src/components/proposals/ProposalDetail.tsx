@@ -3,7 +3,7 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, TransactionInstruction, SystemProgram } from "@solana/web3.js";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle2, ThumbsUp, ThumbsDown, Clock, BadgeCheck, ReceiptText } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ThumbsUp, ThumbsDown, Clock, BadgeCheck } from "lucide-react";
 import type { Proposal, VoteStatus } from "../../types";
 import { PROGRAM_ID } from "../../lib/constants";
 import { deriveVotePda } from "../../lib/pda";
@@ -77,7 +77,7 @@ export default function ProposalDetail({
           { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         ],
         programId,
-        data,
+        data: data as unknown as Buffer,
       });
 
       const tx = new Transaction().add(ix);
