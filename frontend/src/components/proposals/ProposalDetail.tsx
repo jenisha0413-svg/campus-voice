@@ -85,12 +85,27 @@ export default function ProposalDetail({
       tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
-      const signature = await sendTransaction(tx, connection, {
-        skipPreflight: true,
-        maxRetries: 3,
-      });
+      let signature: string;
+      try {
+        signature = await sendTransaction(tx, connection, {
+          skipPreflight: true,
+          maxRetries: 3,
+        });
+      } catch (sendErr: any) {
+        const msg = sendErr?.message || String(sendErr);
+        if (msg.includes("Event not found") || msg.includes("voteCast")) {
+          const sigMatch = msg.match(/([A-Za-z0-9]{44,})/);
+          if (sigMatch) {
+            signature = sigMatch[1];
+          } else {
+            throw sendErr;
+          }
+        } else {
+          throw sendErr;
+        }
+      }
 
-      setTxSignature(signature);
+      setTxSignature(signature!);
       if (voteChoice) {
         setYesCount((c) => c + 1);
       } else {
