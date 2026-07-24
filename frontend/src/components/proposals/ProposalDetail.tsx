@@ -1,18 +1,16 @@
 import { useState, useCallback } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { Program, AnchorProvider } from "@coral-xyz/anchor";
+import { PublicKey, Transaction, TransactionInstruction, SystemProgram } from "@solana/web3.js";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CheckCircle2, ThumbsUp, ThumbsDown, Clock, BadgeCheck } from "lucide-react";
 import type { Proposal, VoteStatus } from "../../types";
-import { COMMITMENT } from "../../lib/constants";
+import { PROGRAM_ID } from "../../lib/constants";
 import { deriveVotePda } from "../../lib/pda";
-import idlJson from "../../lib/idl.json";
 import VoteButton from "../ui/VoteButton";
 import TransactionLink from "../ui/TransactionLink";
 import Toast from "../ui/Toast";
 import ResultBar from "../ui/ResultBar";
-import { Idl } from "@coral-xyz/anchor";
 
 interface Props {
   proposal: Proposal;
@@ -21,13 +19,22 @@ interface Props {
   refreshVoteStatus: () => Promise<void>;
 }
 
+function getInstructionData(proposalId: number, vote: boolean): Uint8Array {
+  const data = new Uint8Array(17);
+  const discriminator = new Uint8Array([20, 212, 15, 189, 69, 180, 69, 151]);
+  data.set(discriminator, 0);
+  new DataView(data.buffer).setBigUint64(8, BigInt(proposalId), true);
+  data[16] = vote ? 1 : 0;
+  return data;
+}
+
 export default function ProposalDetail({
   proposal,
   hasVoted,
   voteStatus,
   refreshVoteStatus,
 }: Props) {
-  const { connected, publicKey, signTransaction } = useWallet();
+  const { connected, publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
 
   const [voteChoice, setVoteChoice] = useState<boolean | null>(null);
@@ -54,39 +61,34 @@ export default function ProposalDetail({
     setError(null);
     if (voteChoice === null) { setError("Select Yes or No first"); return; }
     if (!publicKey) { setError("Wallet not connected"); return; }
-    if (!signTransaction) { setError("Wallet does not support signing"); return; }
+    if (!sendTransaction) { setError("Wallet does not support sendTransaction"); return; }
 
     setIsSubmitting(true);
     try {
-      const wallet = { publicKey, signTransaction } as any;
-      const provider = new AnchorProvider(connection, wallet, {
-        commitment: COMMITMENT as any,
-      });
-      const program = new Program(idlJson as Idl, provider);
-
+      const programId = new PublicKey(PROGRAM_ID);
       const [pda] = deriveVotePda(proposal.id, publicKey);
 
-      const tx = await program.methods
-        .castVote(BigInt(proposal.id), voteChoice)
-        .accounts({
-          voteRecord: pda,
-          voter: publicKey,
-          systemProgram: "11111111111111111111111111111111" as any,
-        })
-        .transaction();
+      const data = getInstructionData(proposal.id, voteChoice);
 
+      const ix = new TransactionInstruction({
+        keys: [
+          { pubkey: pda, isSigner: false, isWritable: true },
+          { pubkey: publicKey, isSigner: true, isWritable: true },
+          { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+        ],
+        programId,
+        data: data as unknown as Buffer,
+      });
+
+      const tx = new Transaction().add(ix);
       const { blockhash } = await connection.getLatestBlockhash();
       tx.recentBlockhash = blockhash;
       tx.feePayer = publicKey;
 
-      const signedTx = await signTransaction(tx);
-      const rawTx = signedTx.serialize();
-
-      const signature = await connection.sendRawTransaction(rawTx, {
+      const signature = await sendTransaction(tx, connection, {
         skipPreflight: true,
+        maxRetries: 3,
       });
-
-      await connection.confirmTransaction(signature, "confirmed");
 
       setTxSignature(signature);
       if (voteChoice) {
@@ -103,7 +105,7 @@ export default function ProposalDetail({
     } finally {
       setIsSubmitting(false);
     }
-  }, [voteChoice, publicKey, signTransaction, proposal.id, connection, refreshVoteStatus]);
+  }, [voteChoice, publicKey, sendTransaction, proposal.id, connection, refreshVoteStatus]);
 
   return (
     <div className="mx-auto max-w-2xl">
